@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Bebe! ❤️</title>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #fff5f5;
+            --card-bg: #ffffff;
+            --text-main: #4a2828;
+            --accent: #ff6b6b;
+            --accent-hover: #ff5252;
+            --shadow: 0 10px 30px rgba(255, 107, 107, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* SCREEN 1: WELCOME SCREEN */
+        #welcome-screen {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .cake-icon {
+            font-size: 5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .start-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .start-btn:active {
+            transform: scale(0.95);
+            background-color: var(--accent-hover);
+        }
+
+        /* SCREEN 2: DECK CONTAINER */
+        #deck-container {
+            display: none;
+            width: 100%;
+            max-width: 450px;
+            padding: 1rem;
+            height: 100vh;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* PROGRESS HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.25rem;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0.7;
+        }
+
+        .progress-bar-container {
+            flex-grow: 1;
+            height: 6px;
+            background-color: rgba(255, 107, 107, 0.15);
+            border-radius: 10px;
+            margin: 0 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent);
+            border-radius: 10px;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* CARDS AREA */
+        .card-stage {
+            position: relative;
+            flex-grow: 1;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: var(--card-bg);
+            width: 100%;
+            height: 100%;
+            max-height: 500px;
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: absolute;
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .card-number {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .card-text {
+            font-size: 1.35rem;
+            font-weight: 600;
+            line-height: 1.5;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* NAVIGATION BUTTONS */
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: white;
+            border: 2px solid rgba(255, 107, 107, 0.2);
+            color: var(--accent);
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .nav-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+        }
+
+        .nav-btn.primary:active {
+            background: var(--accent-hover);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* SCREEN 3: END SCREEN */
+        #end-screen {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .heart-icon {
+            font-size: 5rem;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: WELCOME SCREEN -->
+    <div id="welcome-screen">
+        <div class="cake-icon">🎂</div>
+        <h1>Happy Birthday,<br>my love! ❤️</h1>
+        <p>I made something special to remind you of why you mean the absolute world to me.</p>
+        <button class="start-btn" onclick="startDeck()">Open Surprise</button>
+    </div>
+
+    <!-- SCREEN 2: DECK CONTAINER -->
+    <div id="deck-container">
+        <!-- Progress Header -->
+        <div class="header">
+            <span class="progress-text" id="progress-text">1 / 26</span>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Cards Stage -->
+        <div class="card-stage" id="card-stage">
+            <!-- Cards will be injected automatically via JavaScript -->
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="nav-controls">
+            <button class="nav-btn" id="prev-btn" onclick="prevCard()" disabled>
+                <span>←</span> Back
+            </button>
+            <button class="nav-btn primary" id="next-btn" onclick="nextCard()">
+                Next <span>→</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: END SCREEN -->
+    <div id="end-screen">
+        <div class="heart-icon">❤️</div>
+        <h1>I Love You Always</h1>
+        <p>Happy Birthday, Bebe! Thank you for being you, for showing up no matter what, and for letting me love you. Here's to making countless more memories together.</p>
+    </div>
+
+    <script>
+        // List of 26 Reasons
+        const reasons = [
+            "The way your smile instantly completely brightens up even my darkest, heaviest days.",
+            "Your incredible resilience and how you stubbornly show up for life no matter what happens.",
+            "The gentle, peaceful comfort I feel whenever you are holding my hand.",
+            "How amazingly protective and deeply caring you are over the people you love.",
+            "Your beautiful, pure heart that always wishes the best for community animals.",
+            "The silly, unique little jokes that only the two of us understand and laugh at.",
+            "How safe and completely secure I feel whenever I am resting in your arms.",
+            "Your beautiful, soft eyes that make me melt every single time you look at me.",
+            "The quiet, steady way you support my dreams without a single hint of doubt.",
+            "How you notice the smallest details about me that everyone else completely misses.",
+            "The warm, familiar sound of your laugh that brings instant joy to my heart.",
+            "Your hard-working spirit and your refusal to ever give up when things get tough.",
+            "How you can make the most boring, ordinary days feel like a grand adventure.",
+            "The absolute kindness and endless patience you show me when I need it most.",
+            "How perfectly and effortlessly our hands fit together when we walk.",
+            "The cute, passionate face you make when you are focused on something you love.",
+            "Your beautiful capacity to forgive and love with everything you have.",
+            "The sweet, loving text messages you surprise me with just when I need them.",
+            "How you protect our relationship and value everything we build together.",
+            "The effortless comfort of our silences, where no words are even needed.",
+            "Your beautiful voice when you speak softly to me before we fall asleep.",
+            "The absolute loyalty and unshakeable reassurance you give me every single day.",
+            "How you make me want to grow into a much better version of myself.",
+            "The intentional, sweet ways you show affection without me ever having to ask.",
+            "Your cute, playful side that always brings out the inner child in me.",
+            "The beautiful, undeniable fact that out of everyone in the world, you are my fate."
+        ];
+
+        let currentIndex = 0;
+
+        // Inject cards into DOM dynamically
+        const stage = document.getElementById('card-stage');
+        reasons.forEach((text, idx) => {
+            const card = document.createElement('div');
+            card.className = `card ${idx === 0 ? 'active' : ''}`;
+            card.innerHTML = `
+                <div class="card-number">Reason #${idx + 1}</div>
+                <div class="card-text">${text}</div>
+            `;
+            stage.appendChild(card);
+        });
+
+        const cards = document.querySelectorAll('.card');
+
+        function startDeck() {
+            const welcome = document.getElementById('welcome-screen');
+            const deck = document.getElementById('deck-container');
+            
+            welcome.style.opacity = '0';
+            welcome.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                welcome.style.display = 'none';
+                deck.style.display = 'flex';
+                setTimeout(() => {
+                    deck.style.opacity = '1';
+                    updateUI();
+                    triggerConfetti();
+                }, 50);
+            }, 400);
+        }
+
+        function updateUI() {
+            // Update Active Card Class
+            cards.forEach((card, idx) => {
+                card.classList.toggle('active', idx === currentIndex);
+            });
+
+            // Update Progress Header
+            document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${reasons.length}`;
+            const progressPercent = ((currentIndex + 1) / reasons.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            // Update Buttons
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            
+            // Turn last button text into "Finish"
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === reasons.length - 1) {
+                nextBtn.innerHTML = 'Finish 💖';
+            } else {
+                nextBtn.innerHTML = 'Next <span>→</span>';
+            }
+        }
+
+        function nextCard() {
+            if (currentIndex < reasons.length - 1) {
+                currentIndex++;
+                updateUI();
+                if (currentIndex % 5 === 0) triggerConfetti(); // Burst every 5 slides
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateUI();
+            }
+        }
+
+        function showEndScreen() {
+            const deck = document.getElementById('deck-container');
+            const end = document.getElementById('end-screen');
+            
+            deck.style.opacity = '0';
+            setTimeout(() => {
+                deck.style.display = 'none';
+                end.style.display = 'flex';
+                setTimeout(() => {
+                    end.style.opacity = '1';
+                    // Continuous explosion celebration
+                    var duration = 5 * 1000;
+                    var endAnim = Date.now() + duration;
+
+                    (function frame() {
+                        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 } });
+                        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 } });
+                        if (Date.now() < endAnim) requestAnimationFrame(frame);
+                    }());
+                }, 50);
+            }, 400);
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 40,
+                spread: 60,
+                origin: { y: 0.75 },
+                colors: ['#ff6b6b', '#ffb3b3', '#ffffff']
+            });
+        }
+
+        // Support Keyboard Arrows if checked on a laptop
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('deck-container').style.display === 'flex') {
+                if (e.key === 'ArrowRight') nextCard();
+                if (e.key === 'ArrowLeft') prevCard();
+            }
+        });
+    </script>
+</body>
+</html>
